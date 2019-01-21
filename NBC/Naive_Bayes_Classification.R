@@ -32,7 +32,7 @@ obj2 <- predict.nbc(obj, test.x) # Test
 predict.y <- obj2$predict.y
 error <- (1 - mean(predict.y == test.y))*100
 error
-
+y
 #Confusion matrix
 true <- test.y[predict.y == test.y]
 false <- test.y[predict.y != test.y]
@@ -56,8 +56,8 @@ FNR_function <- function(x){
   
   #changing prior1 probability
   prediction <- function(x1){
-    prob0 <- likelihood(x1, mean = m0, cov = cov0)*(1-x)
-    prob1 <- likelihood(x1, mean = m1, cov = cov1)*(x)
+    prob0 <- likelihood(x1, mean = obj$m0, cov = obj$cov0)*(1-x)
+    prob1 <- likelihood(x1, mean = obj$m1, cov = obj$cov1)*(x)
     if (prob1 >= prob0){
       return (1)
     }
@@ -69,8 +69,8 @@ FNR_function <- function(x){
   #Empirical error on the test data
   predict.y <- apply(test.x,1,prediction)
   
-  true <- out.tst[predict.y == test.y]
-  false <- out.tst[predict.y != test.y]
+  true <- test.y[predict.y == test.y]
+  false <- test.y[predict.y != test.y]
   
   TP <- sum(true == 1)
   TN <- sum(true == 0)

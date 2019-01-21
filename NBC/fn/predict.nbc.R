@@ -17,6 +17,7 @@ predict.nbc <- function(obj, test.x){
   # likelihood function
   likelihood <- function(x, mean, cov){
     x <- matrix(x)
+    if (is.list(x)) x <- unlist(x); x <- matrix(x) 
     n.c <- ncol(x); n.r <- nrow(x)
     mean <- matrix(mean, nrow = n.r)
     diff <- matrix(x - mean, nrow = n.r)
