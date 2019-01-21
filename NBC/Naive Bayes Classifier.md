@@ -1,3 +1,11 @@
+---
+layout: post
+title:  "Naive Bayes Classifier"
+author: Eugene Lee
+tags : Naive Bayes Classifier, Bayes Theorem
+mathjax: true
+---
+
 # Naive Bayes Classifier
 
 ## Introduction
