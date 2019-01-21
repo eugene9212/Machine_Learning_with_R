@@ -15,10 +15,13 @@ Naive Bayes Classifier is a classification method using Bayes theorem. The algor
 The code that I posted is about the continuous covariate case and the logic is as follows.
 
 1. Split the train and test data
-	train : $D = {x_i,y_i}^{N}_{i=1}$
-    $N_k$ = the number of class k
+$$
+\text{train : }D = {x_i,y_i}^{N}_{i=1}
+N_k\text{} = the number of class k}
+$$
+
 2. Construct the model
-	- prior probability for class 0 and 1\\
+	- prior probability for class 0 and 1
 		* P(class 0) = $N_0/N$, P(class 1) = $N_1/N$
 	- MLE(Maximum Likelihood Extimator) for parameters($\mu$, $\sigma^2$)
 		* MLE : Estimator of parameter which maximize the likelihood of data.(Find the parameters that is the most likely to happen in this data)
