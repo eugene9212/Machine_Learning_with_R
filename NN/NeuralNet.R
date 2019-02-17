@@ -4,12 +4,12 @@
 rm(list=ls())
 setwd("C:/Users/eugene/Desktop/Machine_Learning_with_R/NN")
 source('fn/train.NN.R')    # Train Neural Network
+source('fn/w.init.R')      # weight initialization
 source('fn/cd.weight.R')   # CD Algorithm for weight Adjustment (used in train function)
 source('fn/w.update.R')    # Weight update (used in train function)
 source('fn/sigmoid.R')     # Calculate Sigmoid (used in train function)
 source('fn/predict.NN.R')  # predict Neural Network
-source('fn/ROC.R')         # Roc function
-source('fn/confusion.m.R') # Create confusion matrix
+source('fn/ROC.R')         # Roc function and confusion matrix
 
 ##Load the data
 train=read.table("data/trn.txt")
@@ -24,15 +24,15 @@ trn.shape <- dim(in.trn) # 60290개 데이터, 13차원(60290 X 13)
 
 # TRAIN
 obj.train.nn <- train.NN(train.x = in.trn, train.y = out.trn, 
-                         w.dist = "normal", s.d = 0.005, layer.units = c(3, 4, 3), 
-                         learning = 0.01, momen = 0.007)
+                         w.type = "Xavier", s.d = 0, layer.units = c(10,5,9,4), 
+                         update = "AdaGrad", learning = 0.01, momen = 0.007)
 
 # TEST
 in.tst <- as.matrix(test[,1:13])
 out.tst <- as.matrix(test[,14])
 obj.test.nn <- predict.NN(test.x = in.tst, test.y = out.tst, obj = obj.train.nn)
 
-table(obj.test.nn$output)
+# table(obj.test.nn$output)
 hist(obj.test.nn$output*10^6)
 
 predict_y = matrix(1, nrow = dim(obj.test.nn$output)[1],ncol = dim(obj.test.nn$output)[2])
@@ -41,7 +41,7 @@ predict_y = matrix(1, nrow = dim(obj.test.nn$output)[1],ncol = dim(obj.test.nn$o
 ## create ROC curve ##
 ######################
 
-rslt <- roc_function(x = 0.724703867835157, predicted.y = obj.test.nn$output, true.y = out.tst)
+rslt <- roc_function(x = 0.1156, predicted.y = obj.test.nn$output, true.y = out.tst)
 rslt$error
 rslt$ROC
 rslt$confusion

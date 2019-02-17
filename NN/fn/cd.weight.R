@@ -1,13 +1,14 @@
 # CD Algorithm
 cd.weight <- function(input, weight, bias_v, bias_h, learning){
-  # input = data, output = weight()
   
   # Demensionality Check!!
   if (dim(input)[2] != dim(weight)[1]) output <- t(weight)
   if (dim(input)[2] != dim(weight)[1]) warning("Dimensions of input and output are not identical")
   
+  # v : visible layer in RBM
+  # h : hidden layer in RBM
   for (m in 1:dim(input)[1]){
-    # m <- 1
+    
     v1_value = matrix(as.matrix(input[m,]),ncol = dim(weight)[1])
     
     # Probability for h1
@@ -44,11 +45,10 @@ cd.weight <- function(input, weight, bias_v, bias_h, learning){
       else h2_value[i] = 0
     }
     
-    # weight1 update
+    # weight update
     for (i in 1:dim(weight)[1]) {
       for (j in 1:dim(weight)[2]) {
-        weight[i, j] = weight[i, j] - learning * (v1_value[i] * h1_prob[j]
-                                                    - v2_value[i] * h2_prob[j])
+        weight[i, j] = weight[i, j] - learning * (v1_value[i] * h1_prob[j] - v2_value[i] * h2_prob[j])
         bias_v = bias_v + learning * (v1_value - v2_value)
         bias_h = bias_h + learning * (h1_prob - h2_prob)
       }
