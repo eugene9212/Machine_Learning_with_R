@@ -24,8 +24,8 @@ trn.shape <- dim(in.trn) # 60290개 데이터, 13차원(60290 X 13)
 
 # TRAIN
 obj.train.nn <- train.NN(train.x = in.trn, train.y = out.trn, 
-                         w.type = "Xavier", s.d = 0, layer.units = c(10,5,9,4), 
-                         update = "AdaGrad", learning = 0.01, momen = 0.007)
+                         w.type = "RBM", s.d = 0, layer.units = c(3,4,3), 
+                         update = "momentum", learning = 0.01, momen = 0.007, epoch = 5)
 
 # TEST
 in.tst <- as.matrix(test[,1:13])

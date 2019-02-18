@@ -1,7 +1,8 @@
 ####################################
 # train function for neural network#
 ####################################
-train.NN <- function(train.x, train.y, w.type = "normal", s.d = 0, layer.units = c(3, 3), update, learning = 0.01, momen = 0 ){
+train.NN <- function(train.x, train.y, w.type = "RBM", s.d = 0, 
+                     layer.units = c(3, 3), update, learning = 0.01, momen = 0, epoch = 1 ){
   
   # shape of train data
   input.dim <- dim(train.x)[2]
@@ -15,7 +16,7 @@ train.NN <- function(train.x, train.y, w.type = "normal", s.d = 0, layer.units =
   num.w <- length(layer.units) + 1
   
   # weight initialization
-  w.obj <- w.init(w.type = "RBM", layers = layers, in.trn = train.x, learning = learning)
+  w.obj <- w.init(w.type = w.type, layers = layers, in.trn = train.x, learning = learning)
   
   for(jj in 1:num.w){
     eval(parse(text=paste0(
@@ -43,54 +44,100 @@ train.NN <- function(train.x, train.y, w.type = "normal", s.d = 0, layer.units =
   ##############################################################
   # Feedforward and Backpropagation for each samples (1 epoch) #
   ##############################################################
-  for (m in 1:dim(in.trn)[1]){
-    layer0OUT = in.trn[m,]
+  
+  for (ee in 1:epoch) {
     
-    ##====== Feedforward ======##
-    if(m==1){
-      
-      for (j in 1:num.w){
-        eval(parse(text=paste0(
-          "layer",j,"IN", "<-layer",j-1,"OUT%*%weight",j)))
-        eval(parse(text=paste0(
-          "layer",j,"OUT", "<-sigmoid(layer",j-1,"OUT, weight",j,", b0 = layer",j,"INbias)")))
-      }
-      # yout = layer4OUT / yINbias = layer4INbias
-      # layer4OUT : prob. of predict_y
-      
+    if(ee == 1){
+      #=================================== EPOCH 1 START =========================================#
+      for (m in 1:dim(in.trn)[1]){
+        layer0OUT = in.trn[m,]
+        
+        ##====== Feedforward ======##
+        if(m==1){
+          
+          for (j in 1:num.w){
+            eval(parse(text=paste0(
+              "layer",j,"IN", "<-layer",j-1,"OUT%*%weight",j)))
+            eval(parse(text=paste0(
+              "layer",j,"OUT", "<-sigmoid(layer",j-1,"OUT, weight",j,", b0 = layer",j,"INbias)")))
+          }
+          # yout = layer4OUT / yINbias = layer4INbias
+          # layer4OUT : prob. of predict_y
+          
+        } else {
+          
+          for (j in 1:num.w){
+            eval(parse(text=paste0(
+              "layer",j,"IN", "<-layer",j-1,"OUT%*%obj",j,"$weight")))
+            eval(parse(text=paste0(
+              "layer",j,"OUT", "<-sigmoid(layer",j-1,"OUT,obj",j,"$weight, b0 = obj",j,"$layer2INbias)")))
+          }
+        }
+        
+        ##====== Backpropagation ======##
+        result = out.trn[m]
+        
+        # Calculate the errors
+        for(ii in num.w:1){
+          if(ii == num.w) eval(parse(text=paste0("error",ii,"<- result-layer",ii,"OUT")))
+          else {
+            eval(parse(text=paste0(
+              "error",ii,"<- error",ii+1,"%*%t(weight",ii+1,")*layer",ii,"OUT*(1-layer",ii,"OUT)")))
+          }
+        }
+        
+        # weight update
+        for(ii in 1:num.w){
+          eval(parse(text=paste0(
+            "obj",ii,"<- w.update(update, weight",ii,", layer",ii-1,"OUT, layer",ii,"INbias, error",ii,", pre_delta",ii,", learning, momen)")))
+          if(update == "Adagrad"){
+            eval(parse(text=paste0(
+              "pre_delta",ii,"<- 0.9*obj",ii,"$pre_delta"))) # for Adagrad Update (0.9 : RMSProp)
+          } else{
+            eval(parse(text=paste0(
+              "pre_delta",ii,"<- obj",ii,"$pre_delta"))) # for Momentum update
+          }
+        }
+      }#=================================== EPOCH 1 END =========================================#
     } else {
+    #=================================== EPOCH 2 ~ START =========================================#
+    for (m in 1:dim(in.trn)[1]){
+      layer0OUT = in.trn[m,]
       
+      ##====== Feedforward ======##
       for (j in 1:num.w){
         eval(parse(text=paste0(
           "layer",j,"IN", "<-layer",j-1,"OUT%*%obj",j,"$weight")))
         eval(parse(text=paste0(
           "layer",j,"OUT", "<-sigmoid(layer",j-1,"OUT,obj",j,"$weight, b0 = obj",j,"$layer2INbias)")))
       }
-    }
-
-    ##====== Backpropagation ======##
-    result = out.trn[m]
-    
-    # Calculate the errors
-    for(ii in num.w:1){
-      if(ii == num.w) eval(parse(text=paste0("error",ii,"<- result-layer",ii,"OUT")))
-      else {
+      
+      ##====== Backpropagation ======##
+      result = out.trn[m]
+      
+      # Calculate the errors
+      for(ii in num.w:1){
+        if(ii == num.w) eval(parse(text=paste0("error",ii,"<- result-layer",ii,"OUT")))
+        else {
+          eval(parse(text=paste0(
+            "error",ii,"<- error",ii+1,"%*%t(obj",ii,"$weight)*layer",ii,"OUT*(1-layer",ii,"OUT)")))
+        }
+      }
+      
+      # weight update
+      for(ii in 1:num.w){
         eval(parse(text=paste0(
-          "error",ii,"<- error",ii+1,"%*%t(weight",ii+1,")*layer",ii,"OUT*(1-layer",ii,"OUT)")))
+          "obj",ii,"<- w.update(update, obj",ii,"$weight, layer",ii-1,"OUT, obj",ii,"$layer",ii,"INbias, error",ii,", pre_delta",ii,", learning, momen)")))
+        if(update == "Adagrad"){
+          eval(parse(text=paste0(
+            "pre_delta",ii,"<- 0.9*obj",ii,"$pre_delta"))) # for Adagrad Update (0.9 : RMSProp)
+        } else{
+          eval(parse(text=paste0(
+            "pre_delta",ii,"<- obj",ii,"$pre_delta"))) # for Momentum update
+        }
       }
     }
-    
-    # weight update
-    for(ii in 1:num.w){
-      eval(parse(text=paste0(
-        "obj",ii,"<- w.update(update, weight",ii,", layer",ii-1,"OUT, layer",ii,"INbias, error",ii,", pre_delta",ii,", learning, momen)")))
-      if(update == "Adagrad"){
-        eval(parse(text=paste0(
-          "pre_delta",ii,"<- 0.9*obj",ii,"$pre_delta"))) # for Adagrad Update (0.9 : RMSProp)
-      } else{
-        eval(parse(text=paste0(
-          "pre_delta",ii,"<- obj",ii,"$pre_delta"))) # for Momentum update
-      }
+    #=================================== EPOCH 2 ~ END =========================================#    
     }
   }
   
@@ -107,5 +154,4 @@ train.NN <- function(train.x, train.y, w.type = "normal", s.d = 0, layer.units =
   # return
   obj <- list(weight = weight, bias = bias,
               layer.units = layer.units, learning = learning, momen = momen)
-  
 }
