@@ -1,8 +1,5 @@
-
 # Prediction code for KNN with Parallel Computing#
-
-predict.knn.par <- function(obj, test.x, k =1, distance = "L1"){
-  
+predict.knn.par <- function(obj, test.x, k =1, distance = "L1", core = NA){
   
   # Bring out the train data
   x <- obj$train.x
@@ -11,53 +8,66 @@ predict.knn.par <- function(obj, test.x, k =1, distance = "L1"){
   # length
   n.test <- dim(test.x)[1]
   n.train <- dim(x)[1]
+  n.array <- length(dim(test.x))
   
   # Distance
-  dist <- distance
   predict <- matrix(0, 1, n.test)
   
-  if (dist == "L1"){
+  if (distance == "L1"){
     # L1 Distance
     working <- function(i){
-      result <- matrix(0, 1, n.train)
+      result <- matrix(0, n.train,1)
       
       for(j in 1:n.train){
-        result[j] <- sum(abs(x[j,,,] - test.x[i,,,]))
+        
+        assign(paste("result[",j,"]",sep = ""), 
+               paste("sum(abs(x[",j, strrep(",",n.array-1),"]-test.x[",i, strrep(",",n.array-1),"]"))
+        # result[j] <- sum(abs(x[j,,,] - test.x[i,,,]))
       }
       
       idx <- which(order(result) %in% c(1:k))
-      predict[i] <- as.numeric(names(sort(table(y[idx]),decreasing=TRUE)[1]))
+      predict <- as.numeric(names(sort(table(y[idx]),decreasing=TRUE)[1]))
       
       return(predict)
     }
-  } else if (dist == "L2"){
+  } else if (distance == "L2"){
     # L1 Distance
     working <- function(i){
-      result <- matrix(0, 1, n.train)
+      result <- matrix(0, n.train,1)
       
       for(j in 1:n.train){
-        result[j] <- sqrt(sum((x[j,,,]^2 - test.x[i,,,]^2)^2))
+        assign(paste("result[",j,"]",sep = ""), 
+               paste("sqrt(sum((x[",j, strrep(",",n.array-1),"]^2-test.x[",i, strrep(",",n.array-1),"]^2)^2))"))
+        # result[j] <- sqrt(sum((x[j,,,]^2 - test.x[i,,,]^2)^2))
       }
       
       idx <- which(order(result) %in% c(1:k))
-      predict[i] <- as.numeric(names(sort(table(y[idx]),decreasing=TRUE)[1]))
+      predict <- as.numeric(names(sort(table(y[idx]),decreasing=TRUE)[1]))
       
       return(predict)
     }
   } else message("Distance is not assigned properly")
   
+  # Parallel Computing #
   require(doParallel)
   require(foreach)
-  t <- detectCores(all.tests = FALSE, logical = TRUE)
   
-  cl <- makeCluster(t/2)  # choose the number of cores
+  if(is.na(core)){
+    t <- detectCores(all.tests = FALSE, logical = TRUE) # Detect the computer's available cores
+    cl <- makeCluster(t-2)  # choose the number of cores
+  } else {
+    t <- core
+    cl <- makeCluster(t)  # choose the number of cores
+  }
+  
   registerDoParallel(cl) # register clusters
   
-  mm <- foreach(i=1:n.test, .combine=rbind) %dopar%
+  predicted <- foreach(i=1:n.test, .combine=rbind) %dopar%
     working(i)
   
+  stopCluster(cl)
   
   # return
-  obj <- list(predict = predict, dist = distance)
+  obj <- list(predict = predicted, dist = distance, k = k, cl = cl)
 }
 
