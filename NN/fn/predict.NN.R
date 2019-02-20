@@ -1,7 +1,7 @@
 ##############
 ## predict y##
 ##############
-predict.NN <- function(test.x, test.y, obj){
+predict.NN <- function(test.x, obj){
   
   layers <- c(obj$layer.units, 1)
   num.w <- length(layers)

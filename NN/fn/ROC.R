@@ -1,5 +1,5 @@
 # ROC function #
-roc_function <-function(x, predicted.y, true.y){
+ROC <-function(x, predicted.y, true.y){
   
   predict_y <- matrix(1, nrow = dim(predicted.y)[1],ncol = dim(predicted.y)[2])
   
