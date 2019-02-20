@@ -7,9 +7,9 @@ w.update <-function(update = "momentum", weight, layer1OUT, layer2INbias, error,
     momen <- hyper.p
     for (i in 1:dim(weight)[1]){
       for (j in 1:dim(weight)[2]){
-        pre_delta1[i,j] = momen*pre_delta1[i,j] + learning*layer1OUT[i]*error[j]
-        weight[i,j] = weight[i,j] + pre_delta1[i,j]
-        layer2INbias[j] = layer2INbias[j] + learning*layer1OUT[i]*error[j]
+        pre_delta1[i,j] <- momen*pre_delta1[i,j] + learning*layer1OUT[i]*error[j]
+        weight[i,j] <- weight[i,j] + pre_delta1[i,j]
+        layer2INbias[j] <- layer2INbias[j] + learning*layer1OUT[i]*error[j]
       }
     }
   } else if (update == "AdaGrad"){
@@ -18,9 +18,9 @@ w.update <-function(update = "momentum", weight, layer1OUT, layer2INbias, error,
     decay = hyper.p  # usually 0.9 for decay rate
     for (i in 1:dim(weight)[1]){
       for (j in 1:dim(weight)[2]){
-        pre_delta1[i,j] = decay*pre_delta1[i,j] + (1-decay)*(layer1OUT[i]*error[j])^2
-        weight[i,j] = weight[i,j] + learning*(1/(sqrt(pre_delta1[i,j]) + 1e-8))*layer1OUT[i]*error[j]
-        layer2INbias[j] = layer2INbias[j] + learning*layer1OUT[i]*error[j]
+        pre_delta1[i,j] <- decay*pre_delta1[i,j] + (1-decay)*(layer1OUT[i]*error[j])^2
+        weight[i,j] <- weight[i,j] + learning*(1/(sqrt(pre_delta1[i,j]) + 1e-8))*layer1OUT[i]*error[j]
+        layer2INbias[j] <- layer2INbias[j] + learning*layer1OUT[i]*error[j]
       }
     }
   } else if (update == "Adam"){
@@ -32,10 +32,10 @@ w.update <-function(update = "momentum", weight, layer1OUT, layer2INbias, error,
       # pre_delta1 for m; pre_delta2 for v
       for (i in 1:dim(weight)[1]){
         for (j in 1:dim(weight)[2]){
-          pre_delta1[i,j] = beta1*pre_delta1[i,j] + (1-beta1)*(layer1OUT[i]*error[j])
-          pre_delta2[i,j] = beta2*pre_delta2[i,j] + (1-beta2)*(layer1OUT[i]*error[j])^2
-          weight[i,j] = weight[i,j] + learning*pre_delta1[i,j]/(sqrt(pre_delta2[i,j])+1e-8)
-          layer2INbias[j] = layer2INbias[j] + learning*layer1OUT[i]*error[j]
+          pre_delta1[i,j] <- beta1*pre_delta1[i,j] + (1-beta1)*(layer1OUT[i]*error[j])
+          pre_delta2[i,j] <- beta2*pre_delta2[i,j] + (1-beta2)*(layer1OUT[i]*error[j])^2
+          weight[i,j] <- weight[i,j] + learning*pre_delta1[i,j]/(sqrt(pre_delta2[i,j])+1e-8)
+          layer2INbias[j] <- layer2INbias[j] + learning*layer1OUT[i]*error[j]
         }
       }
     }

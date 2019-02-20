@@ -4,7 +4,7 @@
 # This is for practice (Guideline of how to use uploaded Neural Net code)
 # Load the functions related with Neaural Net
 rm(list=ls())
-setwd("C:/Users/eugene/Desktop/Machine_Learning_with_R/NN")
+setwd("C:/Users/eugene/Desktop/NN")
 source('fn/train.NN.R')    # Train Neural Network
 source('fn/w.init.R')      # weight initialization
 source('fn/cd.weight.R')   # CD Algorithm for weight Adjustment (used in train function)
@@ -27,7 +27,7 @@ trn.shape <- dim(in.trn) # 60290개 데이터, 13차원(60290 X 13)
 # TRAIN
 obj.train.nn <- train.NN(train.x = in.trn, train.y = out.trn, 
                          w.type = "RBM", s.d = 0, layer.units = c(3,4,3), 
-                         update = "Adam", learning = 0.001, hyper.p = c(0.9,0.999), epoch = 1)
+                         update = "Adam", learning = 0.001, hyper.p = c(0.9,0.999), batch = 1, epoch = 1)
 
 # TEST
 in.tst <- as.matrix(test[,1:13])

@@ -49,7 +49,7 @@ train.NN <- function(train.x, train.y, w.type = "RBM", s.d = 0,
     
     #=================================== EPOCH 1 START =========================================#
     for (m in 1:dim(in.trn)[1]){
-      layer0OUT = in.trn[m,]
+      layer0OUT <- train.x[m,]
       
       ##====== Feedforward ======##
       if(m==1 && ee==1){
