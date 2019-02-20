@@ -22,7 +22,7 @@ in.trn <- as.matrix(train[,1:13])
 out.trn <- as.matrix(train[,14])
 
 # shape of train data
-trn.shape <- dim(in.trn) # 60290개 데이터, 13차원(60290 X 13)
+trn.shape <- dim(in.trn) # 60290?? ??????, 13????(60290 X 13)
 
 # TRAIN
 obj.train.nn <- train.NN(train.x = in.trn, train.y = out.trn, 
@@ -32,7 +32,7 @@ obj.train.nn <- train.NN(train.x = in.trn, train.y = out.trn,
 # TEST
 in.tst <- as.matrix(test[,1:13])
 out.tst <- as.matrix(test[,14])
-obj.test.nn <- predict.NN(test.x = in.tst, test.y = out.tst, obj = obj.train.nn)
+obj.test.nn <- predict.NN(test.x = in.tst, obj = obj.train.nn)
 
 # Make a histogram for predicted value
 # table(obj.test.nn$output)
@@ -44,17 +44,17 @@ predict_y  <-  matrix(1, nrow = dim(obj.test.nn$output)[1],ncol = dim(obj.test.n
 ## create ROC curve ##
 ######################
 # find out the optimal cutting point
-rslt <- roc_function(x = 0.507, predicted.y = obj.test.nn$output, true.y = out.tst)
+rslt <- ROC(x = 0.507, predicted.y = obj.test.nn$output, true.y = out.tst)
 rslt$error
 rslt$ROC
 rslt$confusion
 rslt$error
-dots <- rbind(roc_function(0, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC, 
-             roc_function(0.51605214, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
-             roc_function(0.516052165, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
-             roc_function(0.51605216511, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
-             roc_function(0.7, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
-             roc_function(1, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC)
+dots <- rbind(ROC(0, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC, 
+             ROC(0.51605214, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
+             ROC(0.516052165, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
+             ROC(0.51605216511, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
+             ROC(0.7, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
+             ROC(1, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC)
 colnames(dots) <- c("FPR","TPR")
 dots <- data.frame(dots)
 
