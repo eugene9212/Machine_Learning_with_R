@@ -8,7 +8,7 @@ train.NN <- function(train.x, train.y, w.type = "RBM", s.d = 0,
   input.dim <- dim(train.x)[2]
   
   # Create layers
-  layers = c(input.dim, layer.units, 1)
+  layers <- c(input.dim, layer.units, 1)
   
   # number of weights btw layers
   num.w <- length(layer.units) + 1
@@ -33,10 +33,12 @@ train.NN <- function(train.x, train.y, w.type = "RBM", s.d = 0,
     assign(paste("layer",j,"INbias",sep = ""),matrix(1, nrow=1, ncol=layers[j+1]))
   }
   
-  # Storage for pre_delta
+  # Storage for pre_delta1 and 2
   for (j in 1:num.w){
     eval(parse(text=paste0(
-      "pre_delta",j,"<- matrix(0, nrow= dim(weight",j,")[1] , ncol= dim(weight",j,")[2]",")")))
+      "pre_delta1",j,"<- matrix(0, nrow= dim(weight",j,")[1] , ncol= dim(weight",j,")[2]",")")))
+    eval(parse(text=paste0(
+      "pre_delta2",j,"<- matrix(0, nrow= dim(weight",j,")[1] , ncol= dim(weight",j,")[2]",")")))
   }
   
   ##############################################################
@@ -92,11 +94,22 @@ train.NN <- function(train.x, train.y, w.type = "RBM", s.d = 0,
       
       # weight update
       for(ii in 1:num.w){
-        eval(parse(text=paste0(
-          "obj",ii,"<- w.update(update, weight",ii,", layer",ii-1,"OUT, layer",ii,"INbias, error",ii,", 
-                                pre_delta",ii,", learning, hyper.p = hyper.p)")))
-        eval(parse(text=paste0(
-          "pre_delta",ii,"<- obj",ii,"$pre_delta")))
+        if (update != "Adam"){
+          eval(parse(text=paste0(
+            "obj",ii,"<- w.update(update, weight",ii,", layer",ii-1,"OUT, layer",ii,"INbias, error",ii,", 
+                                  learning, hyper.p = hyper.p, pre_delta1",ii,")")))
+          eval(parse(text=paste0(
+            "pre_delta1",ii,"<- obj",ii,"$pre_delta1")))
+        } else {
+          eval(parse(text=paste0(
+            "obj",ii,"<- w.update(update, weight",ii,", layer",ii-1,"OUT, layer",ii,"INbias, error",ii,", 
+                                learning, hyper.p = hyper.p, pre_delta1",ii,", pre_delta2",ii," )")))
+          eval(parse(text=paste0(
+            "pre_delta1",ii,"<- obj",ii,"$pre_delta1")))
+          eval(parse(text=paste0(
+            "pre_delta2",ii,"<- obj",ii,"$pre_delta2")))
+          
+        }
       }
     }#=================================== EPOCH 1 END =========================================#
       
