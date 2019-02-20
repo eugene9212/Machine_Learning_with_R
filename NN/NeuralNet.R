@@ -1,6 +1,6 @@
-########
-## NN ##
-########
+##################################
+## NN for binary classification ##
+##################################
 rm(list=ls())
 setwd("C:/Users/eugene/Desktop/Machine_Learning_with_R/NN")
 source('fn/train.NN.R')    # Train Neural Network
@@ -25,14 +25,14 @@ trn.shape <- dim(in.trn) # 60290개 데이터, 13차원(60290 X 13)
 # TRAIN
 obj.train.nn <- train.NN(train.x = in.trn, train.y = out.trn, 
                          w.type = "RBM", s.d = 0, layer.units = c(3,4,3), 
-                         update = "momentum", learning = 0.01, momen = 0.007, epoch = 5)
+                         update = "momentum", learning = 0.001, hyper.p = 0.007, epoch = 5)
 
 # TEST
 in.tst <- as.matrix(test[,1:13])
 out.tst <- as.matrix(test[,14])
 obj.test.nn <- predict.NN(test.x = in.tst, test.y = out.tst, obj = obj.train.nn)
 
-# table(obj.test.nn$output)
+table(obj.test.nn$output)
 hist(obj.test.nn$output*10^6)
 
 predict_y = matrix(1, nrow = dim(obj.test.nn$output)[1],ncol = dim(obj.test.nn$output)[2])
@@ -41,18 +41,16 @@ predict_y = matrix(1, nrow = dim(obj.test.nn$output)[1],ncol = dim(obj.test.nn$o
 ## create ROC curve ##
 ######################
 
-rslt <- roc_function(x = 0.1156, predicted.y = obj.test.nn$output, true.y = out.tst)
+rslt <- roc_function(x = 0.516052165, predicted.y = obj.test.nn$output, true.y = out.tst)
 rslt$error
 rslt$ROC
 rslt$confusion
 rslt$error
 dots = rbind(roc_function(0, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC, 
-             roc_function(0.72470386782, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
-             roc_function(0.7247038678239, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
-             roc_function(0.72470386782365, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
-             roc_function(0.7247038679, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
-             roc_function(0.72470386794, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC, 
-             roc_function(0.72470386794, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
+             roc_function(0.51605214, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
+             roc_function(0.516052165, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
+             roc_function(0.51605216511, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
+             roc_function(7, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC,
              roc_function(1, predicted.y = obj.test.nn$output, true.y = out.tst)$ROC)
 colnames(dots)<-c("FPR","TPR")
 dots<-data.frame(dots)
